@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Função - FinanceControl</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mobile-optimization.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            transform: translateX(4px);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1rem;
+            }
+
+            .desktop-only {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">FinanceControl</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-2">
+                                A
+                            </div>
+                            <span>Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg h-screen fixed left-0 top-16 z-30 md:z-auto">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="index.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="clientes.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="fornecedores.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span>Fornecedores</span>
+                    </a>
+                    <a href="produtos.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-box mr-3"></i>
+                        <span>Produtos</span>
+                    </a>
+                    <a href="funcionarios.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Funcionários</span>
+                    </a>
+                    <a href="telegram.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fab fa-telegram-plane mr-3 text-blue-500"></i>
+                        <span>Telegram Chat</span>
+                    </a>
+                    <a href="teste.html" class="sidebar-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-vial mr-3"></i>
+                        <span class="font-medium">Teste de Função</span>
+                    </a>
+                    <div class="border-t pt-4 mt-4">
+                        <a href="pdv.html" class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
+                            <i class="fas fa-cash-register mr-3"></i>
+                            <span class="font-medium">PDV</span>
+                        </a>
+                        <a href="vendas.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Vendas</span>
+                        </a>
+                        <a href="gastos.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-receipt mr-3"></i>
+                            <span>Gastos</span>
+                        </a>
+                        <a href="financeiro.html" class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Financeiro</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="main-content flex-1 md:ml-64 p-4 md:p-8">
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Teste de Função</h1>
+                <p class="text-gray-600">Página de teste solicitada</p>
+            </div>
+
+            <div class="animate-fade-in bg-white p-12 rounded-2xl shadow-xl flex flex-col items-center justify-center min-h-[50vh]">
+                <div class="h-24 w-24 bg-purple-100 rounded-full flex items-center justify-center mb-8">
+                    <i class="fas fa-flask text-5xl text-purple-600"></i>
+                </div>
+                <h2 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 mb-6 text-center">
+                    teste de funçao
+                </h2>
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 max-w-md text-center">
+                    <p class="text-gray-600 leading-relaxed">
+                        Esta página foi criada e integrada ao sistema FinanceControl como solicitado pelo usuário.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        if (mobileMenuBtn && sidebar && mobileOverlay) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.classList.toggle('hidden');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            mobileOverlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+        }
+    </script>
+</body>
+
+</html>
