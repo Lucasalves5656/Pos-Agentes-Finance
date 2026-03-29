@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - FinanceControl</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mobile-optimization.css">
+    <!-- Importação do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+    // Set environment variables for Supabase
+    window.ENV = {
+        SUPABASE_URL: '<%= process.env.SUPABASE_URL %>',
+        SUPABASE_ANON_KEY: '<%= process.env.SUPABASE_ANON_KEY %>'
+    };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            transform: translateX(4px);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: none;
+        }
+
+        .loading.active {
+            display: inline-block;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1rem;
+            }
+
+            .desktop-only {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">FinanceControl</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <button onclick="openModal()"
+                        class="bg-blue-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base">
+                        <i class="fas fa-plus mr-1 md:mr-2"></i><span class="hidden md:inline">Novo Cliente</span>
+                    </button>
+                    <div class="relative">
+                        <button class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <div
+                                class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-2">
+                                A
+                            </div>
+                            <span>Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+<!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg h-screen fixed left-0 top-16 z-30 md:z-auto">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="index.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="clientes.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="fornecedores.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span>Fornecedores</span>
+                    </a>
+                    <a href="produtos.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-box mr-3"></i>
+                        <span>Produtos</span>
+                    </a>
+                    <a href="funcionarios.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Funcionários</span>
+                    </a>
+                    <div class="border-t pt-4 mt-4">
+                        <a href="pdv.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
+                            <i class="fas fa-cash-register mr-3"></i>
+                            <span class="font-medium">PDV</span>
+                        </a>
+                        <a href="vendas.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Vendas</span>
+                        </a>
+                        <a href="gastos.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-receipt mr-3"></i>
+                            <span>Gastos</span>
+                        </a>
+                        <a href="financeiro.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Financeiro</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+
+        <!-- Content Area -->
+        <div class="main-content flex-1 md:ml-64 p-4 md:p-8">
+            <!-- Header -->
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Clientes</h1>
+                <p class="text-gray-600">Gerencie seu cadastro de clientes</p>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6 animate-fade-in">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Pesquisar clientes..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="statusFilter"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Todos os status</option>
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                        <button onclick="filterClients()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-filter mr-2"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="bg-white rounded-xl shadow-md p-8 text-center animate-fade-in">
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
+                    <p class="text-gray-600">Carregando clientes...</p>
+                </div>
+            </div>
+
+            <!-- Clients Table -->
+            <div id="clientsContainer" class="bg-white rounded-xl shadow-md overflow-hidden animate-fade-in"
+                style="display: none;">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">Lista de Clientes</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="exportClients()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cliente</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Telefone</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Email</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cidade</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Os clientes serão carregados dinamicamente aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="bg-white rounded-xl shadow-md p-8 text-center animate-fade-in"
+                style="display: none;">
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Nenhum cliente cadastrado</h3>
+                    <p class="text-gray-600 mb-4">Comece cadastrando seu primeiro cliente.</p>
+                    <button onclick="openModal()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Novo Cliente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="clientModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Novo Cliente</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <form id="clientForm" class="p-6">
+                <input type="hidden" id="clientId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+                        <input type="text" id="name" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CPF *</label>
+                        <input type="text" id="cpf" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="000.000.000-00">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone *</label>
+                        <input type="tel" id="phone" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="(11) 99999-9999">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                        <input type="email" id="email" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="cliente@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
+                        <input type="text" id="city" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                        <textarea id="address" rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeModal()"
+                        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin loading mr-2" style="display: none;"></i>
+                        <span id="submitText">Salvar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let clients = [];
+        let currentEditingId = null;
+
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Carregar clientes quando a página é aberta
+        document.addEventListener('DOMContentLoaded', function () {
+            loadClients();
+        });
+
+        // Carregar clientes do Supabase
+        async function loadClients() {
+            try {
+                showLoadingState();
+
+                clients = await FinanceControlDB.getClients();
+
+                hideLoadingState();
+
+                if (clients.length === 0) {
+                    showEmptyState();
+                } else {
+                    renderClientsTable(clients);
+                    showClientsContainer();
+                }
+            } catch (error) {
+                hideLoadingState();
+                showError('Erro ao carregar clientes: ' + error.message);
+            }
+        }
+
+        // Renderizar tabela de clientes
+        function renderClientsTable(clientsList) {
+            const tbody = document.getElementById('clientsTable');
+            tbody.innerHTML = '';
+
+            clientsList.forEach(client => {
+                const initials = getInitials(client.name);
+                const statusClass = client.status === 'active' ?
+                    'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                const statusText = client.status === 'active' ? 'Ativo' : 'Inativo';
+
+                const row = `
+                    <tr class="hover:bg-gray-50" data-client-id="${client.id}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span class="text-blue-600 font-medium">${initials}</span>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${client.name}</div>
+                                    <div class="text-sm text-gray-500">CPF: ${client.cpf || 'Não informado'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${client.phone || 'Não informado'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${client.email || 'Não informado'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${client.city || 'Não informada'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editClient('${client.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteClient('${client.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Obter iniciais do nome
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        // Modal functions
+        function openModal(clientId = null) {
+            currentEditingId = clientId;
+            const modal = document.getElementById('clientModal');
+            const title = document.getElementById('modalTitle');
+
+            if (clientId) {
+                title.textContent = 'Editar Cliente';
+                loadClientData(clientId);
+            } else {
+                title.textContent = 'Novo Cliente';
+                document.getElementById('clientForm').reset();
+                document.getElementById('clientId').value = '';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('clientModal').classList.remove('active');
+            document.getElementById('clientForm').reset();
+            document.getElementById('clientId').value = '';
+            currentEditingId = null;
+        }
+
+        // Carregar dados do cliente para edição
+        function loadClientData(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client) {
+                document.getElementById('clientId').value = client.id;
+                document.getElementById('name').value = client.name || '';
+                document.getElementById('cpf').value = client.cpf || '';
+                document.getElementById('phone').value = client.phone || '';
+                document.getElementById('email').value = client.email || '';
+                document.getElementById('city').value = client.city || '';
+                document.getElementById('address').value = client.address || '';
+                document.getElementById('status').value = client.status || 'active';
+            }
+        }
+
+        // Form submission
+        document.getElementById('clientForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            await saveClient();
+        });
+
+        // Salvar cliente
+        async function saveClient() {
+            const submitBtn = document.querySelector('#clientForm button[type="submit"]');
+            const spinner = submitBtn.querySelector('.loading');
+            const submitText = submitBtn.querySelector('#submitText');
+
+            try {
+                // Mostrar loading
+                spinner.style.display = 'inline-block';
+                submitText.textContent = 'Salvando...';
+                submitBtn.disabled = true;
+
+                const clientData = {
+                    name: document.getElementById('name').value,
+                    cpf: document.getElementById('cpf').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    city: document.getElementById('city').value,
+                    address: document.getElementById('address').value,
+                    status: document.getElementById('status').value
+                };
+
+                if (currentEditingId) {
+                    // Editar cliente existente
+                    await updateClient(currentEditingId, clientData);
+                } else {
+                    // Criar novo cliente
+                    await FinanceControlDB.createClient(clientData);
+                }
+
+                // Recarregar lista
+                await loadClients();
+                closeModal();
+                showSuccess(currentEditingId ? 'Cliente atualizado com sucesso!' : 'Cliente cadastrado com sucesso!');
+
+            } catch (error) {
+                showError('Erro ao salvar cliente: ' + error.message);
+            } finally {
+                // Restaurar botão
+                spinner.style.display = 'none';
+                submitText.textContent = 'Salvar';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Atualizar cliente (função simulada - você precisará implementar no supabase-config.js)
+        async function updateClient(clientId, clientData) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('clients')
+                    .update(clientData)
+                    .eq('id', clientId)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                console.error('Erro ao atualizar cliente:', error);
+                throw error;
+            }
+        }
+
+        // Editar cliente
+        function editClient(clientId) {
+            openModal(clientId);
+        }
+
+        // Deletar cliente
+        async function deleteClient(clientId) {
+            const client = clients.find(c => c.id === clientId);
+
+            if (!client) return;
+
+            if (confirm(`Deseja realmente excluir o cliente "${client.name}"?`)) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('clients')
+                        .delete()
+                        .eq('id', clientId);
+
+                    if (error) throw error;
+
+                    await loadClients();
+                    showSuccess('Cliente excluído com sucesso!');
+                } catch (error) {
+                    showError('Erro ao excluir cliente: ' + error.message);
+                }
+            }
+        }
+
+        // Filtrar clientes
+        function filterClients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredClients = clients;
+
+            // Filtro por status
+            if (statusFilter !== 'all') {
+                filteredClients = filteredClients.filter(client => client.status === statusFilter);
+            }
+
+            // Filtro por pesquisa
+            if (searchTerm) {
+                filteredClients = filteredClients.filter(client =>
+                    client.name.toLowerCase().includes(searchTerm) ||
+                    (client.email && client.email.toLowerCase().includes(searchTerm)) ||
+                    (client.cpf && client.cpf.includes(searchTerm))
+                );
+            }
+
+            renderClientsTable(filteredClients);
+        }
+
+        // Exportar clientes
+        function exportClients() {
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + "Nome,CPF,Telefone,Email,Cidade,Status\n"
+                + clients.map(client =>
+                    `"${client.name}","${client.cpf || ''}","${client.phone || ''}","${client.email || ''}","${client.city || ''}","${client.status}"`
+                ).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "clientes.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', filterClients);
+
+        // Estado da interface
+        function showLoadingState() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('clientsContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showClientsContainer() {
+            document.getElementById('clientsContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function showEmptyState() {
+            document.getElementById('clientsContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        // Notificações
+        function showSuccess(message) {
+            alert('✅ ' + message);
+        }
+
+        function showError(message) {
+            alert('❌ ' + message);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('clientModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        if (mobileMenuBtn && sidebar && mobileOverlay) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.classList.toggle('hidden');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            mobileOverlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+</body>
+
+</html>
