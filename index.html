@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceControl - Sistema de Gestão Empresarial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mobile-optimization.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            transform: translateX(4px);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .desktop-only {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">FinanceControl</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <button
+                        class="bg-blue-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base">
+                        <i class="fas fa-plus mr-1 md:mr-2"></i><span class="hidden md:inline">Novo</span>
+                    </button>
+                    <div class="relative">
+                        <button class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <div
+                                class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-2">
+                                A
+                            </div>
+                            <span>Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg h-screen fixed left-0 top-16 z-30 md:z-auto">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="index.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="clientes.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="fornecedores.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span>Fornecedores</span>
+                    </a>
+                    <a href="produtos.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-box mr-3"></i>
+                        <span>Produtos</span>
+                    </a>
+                    <a href="funcionarios.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Funcionários</span>
+                    </a>
+                    <a href="telegram.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fab fa-telegram-plane mr-3 text-blue-500"></i>
+                        <span>Telegram Chat</span>
+                    </a>
+                    <div class="border-t pt-4 mt-4">
+                        <a href="pdv.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
+                            <i class="fas fa-cash-register mr-3"></i>
+                            <span class="font-medium">PDV</span>
+                        </a>
+                        <a href="vendas.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Vendas</span>
+                        </a>
+                        <a href="gastos.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-receipt mr-3"></i>
+                            <span>Gastos</span>
+                        </a>
+                        <a href="financeiro.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Financeiro</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="main-content flex-1 md:ml-64 p-4 md:p-8">
+            <!-- Header -->
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+                <p class="text-gray-600">Visão geral do seu negócio</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                <div class="card card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-dollar-sign text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Vendas Hoje</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900">R$ 5,230</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-shopping-cart text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Pedidos</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900">24</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-users text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Clientes</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900">156</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-box text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Produtos</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900">89</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Tables -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Sales Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Vendas dos Últimos 7 Dias</h3>
+                    <div
+                        class="h-64 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg flex items-center justify-center">
+                        <canvas id="salesChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Últimas Vendas</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-shopping-bag text-blue-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-medium text-gray-900">Pedido #1234</p>
+                                    <p class="text-sm text-gray-500">João Silva</p>
+                                </div>
+                            </div>
+                            <span class="text-green-600 font-semibold">R$ 250,00</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-shopping-bag text-green-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-medium text-gray-900">Pedido #1233</p>
+                                    <p class="text-sm text-gray-500">Maria Santos</p>
+                                </div>
+                            </div>
+                            <span class="text-green-600 font-semibold">R$ 180,00</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-shopping-bag text-yellow-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-medium text-gray-900">Pedido #1232</p>
+                                    <p class="text-sm text-gray-500">Pedro Oliveira</p>
+                                </div>
+                            </div>
+                            <span class="text-green-600 font-semibold">R$ 320,00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mt-8 bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="window.location.href='pdv.html'"
+                        class="flex items-center justify-center p-4 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
+                        <i class="fas fa-cash-register mr-3 text-xl"></i>
+                        <span class="font-medium">Nova Venda</span>
+                    </button>
+                    <button onclick="window.location.href='clientes.html'"
+                        class="flex items-center justify-center p-4 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-user-plus mr-3 text-xl"></i>
+                        <span class="font-medium">Novo Cliente</span>
+                    </button>
+                    <button onclick="window.location.href='produtos.html'"
+                        class="flex items-center justify-center p-4 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
+                        <i class="fas fa-plus mr-3 text-xl"></i>
+                        <span class="font-medium">Novo Produto</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Initialize sales chart
+        const canvas = document.getElementById('salesChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            // Simple chart drawing
+            ctx.strokeStyle = '#3B82F6';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(20, canvas.height - 20);
+            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.7);
+            ctx.lineTo(canvas.width * 0.4, canvas.height * 0.5);
+            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.3);
+            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.4);
+            ctx.lineTo(canvas.width - 20, canvas.height * 0.2);
+            ctx.stroke();
+        }
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        if (mobileMenuBtn && sidebar && mobileOverlay) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.classList.toggle('hidden');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            mobileOverlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+    <script>
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Initialize sales chart
+        const canvas = document.getElementById('salesChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            // Simple chart drawing
+            ctx.strokeStyle = '#3B82F6';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(20, canvas.height - 20);
+            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.7);
+            ctx.lineTo(canvas.width * 0.4, canvas.height * 0.5);
+            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.3);
+            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.4);
+            ctx.lineTo(canvas.width - 20, canvas.height * 0.2);
+            ctx.stroke();
+        }
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        if (mobileMenuBtn && sidebar && mobileOverlay) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.classList.toggle('hidden');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            mobileOverlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>

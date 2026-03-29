@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos - FinanceControl</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item { transition: all 0.3s ease; }
+        .sidebar-item:hover { transform: translateX(4px); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .animate-fade-in { animation: fadeIn 0.6s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .mobile-sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .mobile-sidebar.active { transform: translateX(0); }
+            .mobile-overlay { display: none; }
+            .mobile-overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="md:hidden mr-3 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">FinanceControl</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base">
+                        <i class="fas fa-plus mr-1 md:mr-2"></i><span class="hidden md:inline">Novo Gasto</span>
+                    </button>
+                    <div class="relative">
+                        <button class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <div
+                                class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-2">
+                                A
+                            </div>
+                            <span>Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+<!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg h-screen fixed left-0 top-16 z-30 md:z-auto">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="index.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="clientes.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="fornecedores.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span>Fornecedores</span>
+                    </a>
+                    <a href="produtos.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-box mr-3"></i>
+                        <span>Produtos</span>
+                    </a>
+                    <a href="funcionarios.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Funcionários</span>
+                    </a>
+                    <div class="border-t pt-4 mt-4">
+                        <a href="pdv.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
+                            <i class="fas fa-cash-register mr-3"></i>
+                            <span class="font-medium">PDV</span>
+                        </a>
+                        <a href="vendas.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Vendas</span>
+                        </a>
+                        <a href="gastos.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
+                            <i class="fas fa-receipt mr-3"></i>
+                            <span>Gastos</span>
+                        </a>
+                        <a href="financeiro.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Financeiro</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+
+        <!-- Content Area -->
+        <div class="flex-1 md:ml-64 p-4 md:p-8">
+            <!-- Header -->
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Controle de Gastos</h1>
+                <p class="text-gray-600">Gerencie seus gastos fixos e variáveis</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                <div class="card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-red-100 text-red-600">
+                            <i class="fas fa-file-invoice-dollar text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Gastos Fixos</p>
+                            <p id="fixedExpensesTotal" class="text-lg md:text-2xl font-bold text-gray-900">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-shopping-basket text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Gastos Variáveis</p>
+                            <p id="variableExpensesTotal" class="text-lg md:text-2xl font-bold text-gray-900">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-calendar-alt text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Este Mês</p>
+                            <p id="monthExpensesTotal" class="text-lg md:text-2xl font-bold text-gray-900">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white p-4 md:p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-2 md:p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-piggy-bank text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3 md:ml-4">
+                            <p class="text-xs md:text-sm font-medium text-gray-600">Economia</p>
+                            <p id="savingsTotal" class="text-lg md:text-2xl font-bold text-gray-900">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Filters -->
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md mb-6 animate-fade-in">
+                <div class="flex flex-wrap gap-2 md:gap-4">
+                    <button onclick="filterExpenses('all')" class="filter-btn active px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                        Todos
+                    </button>
+                    <button onclick="filterExpenses('fixed')" class="filter-btn px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        Gastos Fixos
+                    </button>
+                    <button onclick="filterExpenses('variable')" class="filter-btn px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        Gastos Variáveis
+                    </button>
+                    <button onclick="filterExpenses('month')" class="filter-btn px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        Este Mês
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expenses Table -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden animate-fade-in">
+                <div class="px-4 md:px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 md:mb-0">Lista de Gastos</h3>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                            <i class="fas fa-download mr-1 md:mr-2"></i>Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs md:text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Os dados serão carregados dinamicamente aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="expenseModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Novo Gasto</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <form id="expenseForm" class="p-6">
+                <input type="hidden" id="expenseId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Gasto</label>
+                        <select id="expenseType" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Selecione o tipo</option>
+                            <option value="fixed">Gasto Fixo</option>
+                            <option value="variable">Gasto Variável</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                        <input type="text" id="expenseDescription" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ex: Aluguel, Material, etc">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select id="expenseCategory" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Selecione uma categoria</option>
+                            <option value="Aluguel">Aluguel</option>
+                            <option value="Utilidades">Utilidades (Água, Luz, Internet)</option>
+                            <option value="Salários">Salários</option>
+                            <option value="Material">Material</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Manutenção">Manutenção</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+                        <input type="number" id="expenseAmount" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input type="date" id="expenseDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                        <textarea id="expenseNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Detalhes adicionais (opcional)"></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Variável global para armazenar os gastos
+        let expenses = [];
+        let editingExpenseId = null;
+
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+        });
+
+        mobileOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+        });
+
+        // Modal functions
+        function openModal(expenseId = null) {
+            editingExpenseId = expenseId;
+            const modalTitle = document.getElementById('modalTitle');
+            const expenseForm = document.getElementById('expenseForm');
+            
+            if (expenseId) {
+                modalTitle.textContent = 'Editar Gasto';
+                // Preencher o formulário com os dados do gasto
+                const expense = expenses.find(e => e.id === expenseId);
+                if (expense) {
+                    document.getElementById('expenseId').value = expense.id;
+                    document.getElementById('expenseType').value = expense.type;
+                    document.getElementById('expenseDescription').value = expense.description;
+                    document.getElementById('expenseCategory').value = expense.category;
+                    document.getElementById('expenseAmount').value = expense.amount;
+                    document.getElementById('expenseDate').value = expense.date;
+                    document.getElementById('expenseNotes').value = expense.notes || '';
+                }
+            } else {
+                modalTitle.textContent = 'Novo Gasto';
+                expenseForm.reset();
+            }
+            
+            document.getElementById('expenseModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('expenseModal').classList.remove('active');
+            document.getElementById('expenseForm').reset();
+            editingExpenseId = null;
+        }
+
+        // Form submission
+        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                type: document.getElementById('expenseType').value,
+                description: document.getElementById('expenseDescription').value,
+                category: document.getElementById('expenseCategory').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: document.getElementById('expenseDate').value,
+                notes: document.getElementById('expenseNotes').value
+            };
+            
+            try {
+                if (editingExpenseId) {
+                    // Atualizar gasto existente
+                    await updateExpense(editingExpenseId, formData);
+                    alert('Gasto atualizado com sucesso!');
+                } else {
+                    // Criar novo gasto
+                    await FinanceControlDB.createExpense(formData);
+                    alert('Gasto registrado com sucesso!');
+                }
+                
+                closeModal();
+                loadExpenses(); // Recarregar a lista de gastos
+            } catch (error) {
+                alert('Erro ao salvar gasto: ' + error.message);
+            }
+        });
+
+        // Função para atualizar um gasto
+        async function updateExpense(id, expenseData) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('expenses')
+                    .update(expenseData)
+                    .eq('id', id)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                console.error('Erro ao atualizar gasto:', error);
+                throw error;
+            }
+        }
+
+        // Função para excluir um gasto
+        async function deleteExpense(id) {
+            if (confirm('Deseja realmente excluir este gasto?')) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('expenses')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+                    
+                    alert('Gasto excluído com sucesso!');
+                    loadExpenses(); // Recarregar a lista de gastos
+                } catch (error) {
+                    alert('Erro ao excluir gasto: ' + error.message);
+                }
+            }
+        }
+
+        // Função para carregar os gastos do banco de dados
+        async function loadExpenses() {
+            try {
+                expenses = await FinanceControlDB.getExpenses();
+                renderExpensesTable(expenses);
+                updateExpenseStats(expenses);
+            } catch (error) {
+                console.error('Erro ao carregar gastos:', error);
+            }
+        }
+
+        // Função para renderizar a tabela de gastos
+        function renderExpensesTable(expensesList) {
+            const tbody = document.getElementById('expensesTable');
+            tbody.innerHTML = '';
+
+            if (expensesList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 md:px-6 py-8 text-center text-gray-500">
+                            Nenhum gasto encontrado.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            expensesList.forEach(expense => {
+                const row = document.createElement('tr');
+                row.className = 'expense-row hover:bg-gray-50';
+                row.setAttribute('data-type', expense.type);
+                
+                // Formatar data para o formato brasileiro
+                const expenseDate = new Date(expense.date);
+                const formattedDate = expenseDate.toLocaleDateString('pt-BR');
+                
+                // Formatar valor para o formato brasileiro
+                const formattedAmount = new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                }).format(expense.amount);
+                
+                row.innerHTML = `
+                    <td class="px-4 md:px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${expense.description}</div>
+                        <div class="text-xs text-gray-500">${expense.notes || 'Sem observações'}</div>
+                    </td>
+                    <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${expense.type === 'fixed' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${expense.type === 'fixed' ? 'Fixo' : 'Variável'}
+                        </span>
+                    </td>
+                    <td class="px-4 md:px-6 py-4 text-sm text-gray-900">${expense.category}</td>
+                    <td class="px-4 md:px-6 py-4 text-sm font-semibold text-red-600">${formattedAmount}</td>
+                    <td class="px-4 md:px-6 py-4 text-sm text-gray-900">${formattedDate}</td>
+                    <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="openModal('${expense.id}')" class="text-blue-600 hover:text-blue-900 mr-2 md:mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteExpense('${expense.id}')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Função para atualizar as estatísticas
+        function updateExpenseStats(expensesList) {
+            // Calcular totais
+            const fixedExpenses = expensesList.filter(e => e.type === 'fixed');
+            const variableExpenses = expensesList.filter(e => e.type === 'variable');
+            
+            // Obter data atual
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            // Filtrar gastos do mês atual
+            const monthExpenses = expensesList.filter(e => {
+                const expenseDate = new Date(e.date);
+                return expenseDate.getMonth() === currentMonth && 
+                       expenseDate.getFullYear() === currentYear;
+            });
+            
+            // Calcular totais
+            const fixedTotal = fixedExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const variableTotal = variableExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const monthTotal = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+            
+            // Atualizar os elementos HTML
+            document.getElementById('fixedExpensesTotal').textContent = 
+                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fixedTotal);
+            
+            document.getElementById('variableExpensesTotal').textContent = 
+                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(variableTotal);
+            
+            document.getElementById('monthExpensesTotal').textContent = 
+                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthTotal);
+            
+            // Calcular economia (exemplo: 20% da receita - você precisaria adaptar isso)
+            const savings = monthTotal * 0.2; // Exemplo: 20% dos gastos como economia
+            document.getElementById('savingsTotal').textContent = 
+                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(savings);
+        }
+
+        // Filter expenses
+        function filterExpenses(type) {
+            const rows = document.querySelectorAll('.expense-row');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white'));
+            buttons.forEach(btn => btn.classList.add('bg-gray-100', 'text-gray-700'));
+            
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+            event.target.classList.add('active', 'bg-blue-600', 'text-white');
+            
+            // Obter data atual para filtro de mês
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            // Filter rows
+            rows.forEach(row => {
+                if (type === 'all') {
+                    row.style.display = '';
+                } else if (type === 'month') {
+                    // Mostrar apenas gastos do mês atual
+                    const rowDateText = row.querySelector('td:nth-child(5)').textContent;
+                    const rowDate = new Date(
+                        rowDateText.split('/')[2], 
+                        rowDateText.split('/')[1] - 1, 
+                        rowDateText.split('/')[0]
+                    );
+                    
+                    if (rowDate.getMonth() === currentMonth && rowDate.getFullYear() === currentYear) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                } else {
+                    const rowType = row.getAttribute('data-type');
+                    if (rowType === type) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('expenseModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Carregar gastos quando a página for carregada
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExpenses();
+        });
+    </script>
+</body>
+</html>
