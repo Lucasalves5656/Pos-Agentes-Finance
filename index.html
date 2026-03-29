@@ -149,6 +149,11 @@
                         <i class="fab fa-telegram-plane mr-3 text-blue-500"></i>
                         <span>Telegram Chat</span>
                     </a>
+                    <a href="teste.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-vial mr-3 text-purple-500"></i>
+                        <span>Teste de Função</span>
+                    </a>
                     <div class="border-t pt-4 mt-4">
                         <a href="pdv.html"
                             class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
@@ -383,71 +388,6 @@
             }
         });
     </script>
-    <script>
-        // Animate elements on load
-        anime({
-            targets: '.animate-fade-in',
-            opacity: [0, 1],
-            translateY: [20, 0],
-            delay: anime.stagger(100),
-            duration: 600,
-            easing: 'easeOutQuad'
-        });
+</body>
 
-        // Initialize sales chart
-        const canvas = document.getElementById('salesChart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-
-            // Simple chart drawing
-            ctx.strokeStyle = '#3B82F6';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(20, canvas.height - 20);
-            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.7);
-            ctx.lineTo(canvas.width * 0.4, canvas.height * 0.5);
-            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.3);
-            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.4);
-            ctx.lineTo(canvas.width - 20, canvas.height * 0.2);
-            ctx.stroke();
-        }
-
-        // Mobile menu functionality
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-
-        if (mobileMenuBtn && sidebar && mobileOverlay) {
-            mobileMenuBtn.addEventListener('click', function () {
-                sidebar.classList.toggle('active');
-                mobileOverlay.classList.toggle('hidden');
-                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
-            });
-
-            mobileOverlay.addEventListener('click', function () {
-                sidebar.classList.remove('active');
-                mobileOverlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            });
-        }
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function (e) {
-            if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                sidebar.classList.remove('active');
-                mobileOverlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function () {
-            if (window.innerWidth >= 768) {
-                sidebar.classList.remove('active');
-                mobileOverlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    </script>
+</html>
