@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fornecedores - FinanceControl</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="supabase-config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            transform: translateX(4px);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">FinanceControl</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="openModal()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Novo Fornecedor
+                    </button>
+                    <div class="relative">
+                        <button class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <div
+                                class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-2">
+                                A
+                            </div>
+                            <span>Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg h-screen fixed left-0 top-16 z-30 md:z-auto">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="index.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="clientes.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="fornecedores.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span>Fornecedores</span>
+                    </a>
+                    <a href="produtos.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-box mr-3"></i>
+                        <span>Produtos</span>
+                    </a>
+                    <a href="funcionarios.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Funcionários</span>
+                    </a>
+                    <div class="border-t pt-4 mt-4">
+                        <a href="pdv.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
+                            <i class="fas fa-cash-register mr-3"></i>
+                            <span class="font-medium">PDV</span>
+                        </a>
+                        <a href="vendas.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Vendas</span>
+                        </a>
+                        <a href="gastos.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-receipt mr-3"></i>
+                            <span>Gastos</span>
+                        </a>
+                        <a href="financeiro.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Financeiro</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+
+        <!-- Content Area -->
+        <div class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Fornecedores</h1>
+                <p class="text-gray-600">Gerencie seus fornecedores e contatos</p>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6 animate-fade-in">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Pesquisar fornecedores..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="statusFilter"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Todos os status</option>
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                        <button id="filterButton"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-filter mr-2"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suppliers Table -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden animate-fade-in">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Lista de Fornecedores</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Fornecedor</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Contato</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Email</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cidade</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Categoria</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliersTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Os dados serão carregados dinamicamente via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="supplierModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Novo Fornecedor</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <form id="supplierForm" class="p-6">
+                <input type="hidden" id="supplierId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Razão Social</label>
+                        <input type="text" id="name" name="name" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                        <input type="text" id="cnpj" name="cnpj" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" id="phone" name="phone" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                        <input type="text" id="city" name="city" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select id="category" name="category" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Selecione uma categoria</option>
+                            <option value="Tecnologia">Tecnologia</option>
+                            <option value="Alimentos">Alimentos</option>
+                            <option value="Móveis">Móveis</option>
+                            <option value="Vestuário">Vestuário</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="status" name="status" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                        <textarea id="address" name="address"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeModal()"
+                        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Modal functions
+        function openModal(supplierId = null) {
+            const modal = document.getElementById('supplierModal');
+            const title = document.getElementById('modalTitle');
+
+            if (supplierId) {
+                title.textContent = 'Editar Fornecedor';
+                loadSupplierData(supplierId);
+            } else {
+                title.textContent = 'Novo Fornecedor';
+                document.getElementById('supplierForm').reset();
+                document.getElementById('supplierId').value = '';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('supplierModal').classList.remove('active');
+            document.getElementById('supplierForm').reset();
+            document.getElementById('supplierId').value = '';
+        }
+
+        // Form submission
+        document.getElementById('supplierForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const supplierData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                cnpj: formData.get('cnpj'),
+                city: formData.get('city'),
+                category: formData.get('category'),
+                status: formData.get('status'),
+                address: formData.get('address')
+            };
+
+            const supplierId = document.getElementById('supplierId').value;
+
+            try {
+                if (supplierId) {
+                    // Atualizar fornecedor existente
+                    await updateSupplier(supplierId, supplierData);
+                    alert('Fornecedor atualizado com sucesso!');
+                } else {
+                    // Criar novo fornecedor
+                    await FinanceControlDB.createSupplier(supplierData);
+                    alert('Fornecedor cadastrado com sucesso!');
+                }
+
+                closeModal();
+                loadSuppliers(); // Recarregar a lista
+            } catch (error) {
+                alert('Erro ao salvar fornecedor: ' + error.message);
+            }
+        });
+
+        // Função para carregar dados de um fornecedor específico
+        async function loadSupplierData(supplierId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('suppliers')
+                    .select('*')
+                    .eq('id', supplierId)
+                    .single();
+
+                if (error) throw error;
+
+                // Preencher o formulário com os dados
+                document.getElementById('supplierId').value = data.id;
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('cnpj').value = data.cnpj || '';
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('city').value = data.city || '';
+                document.getElementById('category').value = data.category || '';
+                document.getElementById('status').value = data.status || 'active';
+                document.getElementById('address').value = data.address || '';
+            } catch (error) {
+                console.error('Erro ao carregar dados do fornecedor:', error);
+                alert('Erro ao carregar dados do fornecedor');
+            }
+        }
+
+        // Função para atualizar um fornecedor
+        async function updateSupplier(supplierId, supplierData) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('suppliers')
+                    .update(supplierData)
+                    .eq('id', supplierId)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                console.error('Erro ao atualizar fornecedor:', error);
+                throw error;
+            }
+        }
+
+        // Função para excluir um fornecedor
+        async function deleteSupplier(supplierId) {
+            if (!confirm('Tem certeza que deseja excluir este fornecedor?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('suppliers')
+                    .delete()
+                    .eq('id', supplierId);
+
+                if (error) throw error;
+
+                alert('Fornecedor excluído com sucesso!');
+                loadSuppliers(); // Recarregar a lista
+            } catch (error) {
+                console.error('Erro ao excluir fornecedor:', error);
+                alert('Erro ao excluir fornecedor: ' + error.message);
+            }
+        }
+
+        // Função para carregar fornecedores
+        async function loadSuppliers() {
+            try {
+                const suppliers = await FinanceControlDB.getSuppliers();
+                const tableBody = document.getElementById('suppliersTable');
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                // Filtrar fornecedores por status se necessário
+                let filteredSuppliers = suppliers;
+                if (statusFilter !== 'all') {
+                    filteredSuppliers = suppliers.filter(supplier => supplier.status === statusFilter);
+                }
+
+                // Limpar tabela
+                tableBody.innerHTML = '';
+
+                if (filteredSuppliers.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                Nenhum fornecedor encontrado
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Adicionar fornecedores à tabela
+                filteredSuppliers.forEach(supplier => {
+                    const statusClass = supplier.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800';
+
+                    const statusText = supplier.status === 'active' ? 'Ativo' : 'Inativo';
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-building text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${supplier.name}</div>
+                                    <div class="text-sm text-gray-500">CNPJ: ${supplier.cnpj || 'Não informado'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${supplier.phone || 'Não informado'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${supplier.email || 'Não informado'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${supplier.city || 'Não informado'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${supplier.category || 'Não informado'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="openModal('${supplier.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteSupplier('${supplier.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar fornecedores:', error);
+                const tableBody = document.getElementById('suppliersTable');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-red-500">
+                            Erro ao carregar fornecedores
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#suppliersTable tr');
+
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('filterButton').addEventListener('click', function () {
+            loadSuppliers();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('supplierModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Carregar fornecedores quando a página abrir
+        document.addEventListener('DOMContentLoaded', function () {
+            loadSuppliers();
+        });
+    </script>
+    <script>
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas - FinanceControl</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mobile-optimization.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            transform: translateX(4px);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1rem;
+            }
+
+            .desktop-only {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-2xl text-blue-600 mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">FinanceControl</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <button onclick="window.location.href='pdv.html'"
+                        class="bg-green-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-green-700 transition-colors text-sm md:text-base">
+                        <i class="fas fa-plus mr-1 md:mr-2"></i><span class="hidden md:inline">Nova Venda</span>
+                    </button>
+                    <div class="relative">
+                        <button class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-gray-700 hover:text-gray-900">
+                            <div
+                                class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-2">
+                                A
+                            </div>
+                            <span>Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+<!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg h-screen fixed left-0 top-16 z-30 md:z-auto">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="index.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="clientes.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="fornecedores.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span>Fornecedores</span>
+                    </a>
+                    <a href="produtos.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-box mr-3"></i>
+                        <span>Produtos</span>
+                    </a>
+                    <a href="funcionarios.html"
+                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Funcionários</span>
+                    </a>
+                    <div class="border-t pt-4 mt-4">
+                        <a href="pdv.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-green-600 hover:bg-green-50 rounded-lg">
+                            <i class="fas fa-cash-register mr-3"></i>
+                            <span class="font-medium">PDV</span>
+                        </a>
+                        <a href="vendas.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Vendas</span>
+                        </a>
+                        <a href="gastos.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-receipt mr-3"></i>
+                            <span>Gastos</span>
+                        </a>
+                        <a href="financeiro.html"
+                            class="sidebar-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Financeiro</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+
+        <!-- Content Area -->
+        <div class="main-content flex-1 md:ml-64 p-4 md:p-8">
+            <!-- Header -->
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Controle de Vendas</h1>
+                <p class="text-gray-600">Gerencie e acompanhe suas vendas</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="card-hover bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Vendas Hoje</p>
+                            <p id="salesToday" class="text-2xl font-bold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Faturamento</p>
+                            <p id="totalRevenue" class="text-2xl font-bold text-gray-900">R$ 0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pendentes</p>
+                            <p id="pendingSales" class="text-2xl font-bold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-hover bg-white p-6 rounded-xl shadow-md animate-fade-in">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Ticket Médio</p>
+                            <p id="averageTicket" class="text-2xl font-bold text-gray-900">R$ 0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6 animate-fade-in">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                        <select id="periodFilter"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="today">Hoje</option>
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mês</option>
+                            <option value="3months">Últimos 3 meses</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="statusFilter"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Todos</option>
+                            <option value="completed">Finalizada</option>
+                            <option value="pending">Pendente</option>
+                            <option value="cancelled">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <select id="clientFilter"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="applyFilters()"
+                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-filter mr-2"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="bg-white rounded-xl shadow-md p-8 text-center animate-fade-in">
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
+                    <p class="text-gray-600">Carregando vendas...</p>
+                </div>
+            </div>
+
+            <!-- Sales Table -->
+            <div id="salesContainer" class="bg-white rounded-xl shadow-md overflow-hidden animate-fade-in"
+                style="display: none;">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">Lista de Vendas</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="exportSales()"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Venda</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cliente</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Data</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Valor</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Pagamento</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Dados serão carregados via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="bg-white rounded-xl shadow-md p-8 text-center animate-fade-in"
+                style="display: none;">
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Nenhuma venda encontrada</h3>
+                    <p class="text-gray-600 mb-4">Comece realizando sua primeira venda.</p>
+                    <button onclick="window.location.href='pdv.html'"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Nova Venda
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalhes da venda -->
+    <div id="saleDetailModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Detalhes da Venda</h3>
+                    <button onclick="closeSaleDetailModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6" id="saleDetailContent">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let allSales = [];
+        let allClients = [];
+
+        // Animate elements on load
+        anime({
+            targets: '.animate-fade-in',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(100),
+            duration: 600,
+            easing: 'easeOutQuad'
+        });
+
+        // Carregar vendas quando a página é aberta
+        document.addEventListener('DOMContentLoaded', function () {
+            loadSales();
+        });
+
+        // Função para carregar vendas do Supabase
+        async function loadSales() {
+            try {
+                showLoadingState();
+
+                // Carrega vendas com informações do cliente
+                const { data: sales, error } = await supabaseClient
+                    .from('sales')
+                    .select(`
+                        *,
+                        clients (name)
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allSales = sales || [];
+
+                hideLoadingState();
+
+                if (allSales.length === 0) {
+                    showEmptyState();
+                } else {
+                    updateSalesTable(allSales);
+                    updateSalesStats(allSales);
+                    showSalesContainer();
+                }
+
+                // Carrega clientes para o filtro
+                await loadClientsForFilter();
+
+            } catch (error) {
+                hideLoadingState();
+                showError('Erro ao carregar vendas: ' + error.message);
+            }
+        }
+
+        // Função para carregar clientes para o filtro
+        async function loadClientsForFilter() {
+            try {
+                const clients = await FinanceControlDB.getClients();
+                allClients = clients;
+
+                const clientFilter = document.getElementById('clientFilter');
+                clientFilter.innerHTML = '<option value="all">Todos</option>';
+
+                clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.id;
+                    option.textContent = client.name;
+                    clientFilter.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+            }
+        }
+
+        // Função para atualizar a tabela de vendas
+        function updateSalesTable(sales) {
+            const tbody = document.getElementById('salesTable');
+            tbody.innerHTML = '';
+
+            if (sales.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            Nenhuma venda encontrada
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            sales.forEach(sale => {
+                const saleDate = new Date(sale.created_at);
+                const formattedDate = saleDate.toLocaleDateString('pt-BR') + ' ' + saleDate.toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const statusClass = sale.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    sale.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800';
+
+                const statusText = sale.status === 'completed' ? 'Finalizada' :
+                    sale.status === 'pending' ? 'Pendente' :
+                        'Cancelada';
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${sale.sale_number || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${sale.clients ? sale.clients.name : 'Cliente não encontrado'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formattedDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        R$ ${sale.total_amount ? sale.total_amount.toFixed(2) : '0.00'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${sale.payment_method || 'Não informado'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="viewSale('${sale.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="printReceipt('${sale.id}')" class="text-green-600 hover:text-green-900 mr-3">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        ${sale.status === 'pending' ? `
+                        <button onclick="cancelSale('${sale.id}')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Função para atualizar estatísticas
+        function updateSalesStats(sales) {
+            const today = new Date().toDateString();
+            const salesToday = sales.filter(sale =>
+                new Date(sale.created_at).toDateString() === today && sale.status === 'completed'
+            ).length;
+
+            const completedSales = sales.filter(sale => sale.status === 'completed');
+            const totalRevenue = completedSales.reduce((sum, sale) => sum + (sale.total_amount || 0), 0);
+            const pendingSales = sales.filter(sale => sale.status === 'pending').length;
+            const averageTicket = completedSales.length > 0 ? totalRevenue / completedSales.length : 0;
+
+            document.getElementById('salesToday').textContent = salesToday;
+            document.getElementById('totalRevenue').textContent = 'R$ ' + totalRevenue.toFixed(2);
+            document.getElementById('pendingSales').textContent = pendingSales;
+            document.getElementById('averageTicket').textContent = 'R$ ' + averageTicket.toFixed(2);
+        }
+
+        // Função para aplicar filtros
+        function applyFilters() {
+            const periodFilter = document.getElementById('periodFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const clientFilter = document.getElementById('clientFilter').value;
+
+            let filteredSales = [...allSales];
+
+            // Filtro por período
+            const now = new Date();
+            if (periodFilter === 'today') {
+                filteredSales = filteredSales.filter(sale =>
+                    new Date(sale.created_at).toDateString() === now.toDateString()
+                );
+            } else if (periodFilter === 'week') {
+                const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                filteredSales = filteredSales.filter(sale =>
+                    new Date(sale.created_at) >= startOfWeek
+                );
+            } else if (periodFilter === 'month') {
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                filteredSales = filteredSales.filter(sale =>
+                    new Date(sale.created_at) >= startOfMonth
+                );
+            } else if (periodFilter === '3months') {
+                const threeMonthsAgo = new Date(now.setMonth(now.getMonth() - 3));
+                filteredSales = filteredSales.filter(sale =>
+                    new Date(sale.created_at) >= threeMonthsAgo
+                );
+            }
+
+            // Filtro por status
+            if (statusFilter !== 'all') {
+                filteredSales = filteredSales.filter(sale => sale.status === statusFilter);
+            }
+
+            // Filtro por cliente
+            if (clientFilter !== 'all') {
+                filteredSales = filteredSales.filter(sale => sale.client_id === clientFilter);
+            }
+
+            updateSalesTable(filteredSales);
+        }
+
+        // View sale details
+        async function viewSale(saleId) {
+            try {
+                // Carrega detalhes da venda
+                const { data: sale, error: saleError } = await supabaseClient
+                    .from('sales')
+                    .select(`
+                        *,
+                        clients (*),
+                        sale_items (*, products (*))
+                    `)
+                    .eq('id', saleId)
+                    .single();
+
+                if (saleError) throw saleError;
+
+                const modal = document.getElementById('saleDetailModal');
+                const content = document.getElementById('saleDetailContent');
+
+                const saleDate = new Date(sale.created_at);
+                const formattedDate = saleDate.toLocaleDateString('pt-BR') + ' ' + saleDate.toLocaleTimeString('pt-BR');
+
+                let itemsHtml = '';
+                if (sale.sale_items && sale.sale_items.length > 0) {
+                    itemsHtml = sale.sale_items.map(item => `
+                        <tr class="border-b">
+                            <td class="py-2">${item.products ? item.products.name : 'Produto não encontrado'}</td>
+                            <td class="py-2 text-center">${item.quantity}</td>
+                            <td class="py-2 text-right">R$ ${item.unit_price.toFixed(2)}</td>
+                            <td class="py-2 text-right">R$ ${item.total_price.toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                content.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="text-sm text-gray-600">Número da Venda</p>
+                            <p class="font-semibold">${sale.sale_number || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Data</p>
+                            <p class="font-semibold">${formattedDate}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Cliente</p>
+                            <p class="font-semibold">${sale.clients ? sale.clients.name : 'Não informado'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Método de Pagamento</p>
+                            <p class="font-semibold">${sale.payment_method || 'Não informado'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold ${sale.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        sale.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                    }">
+                                ${sale.status === 'completed' ? 'Finalizada' :
+                        sale.status === 'pending' ? 'Pendente' : 'Cancelada'}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Valor Total</p>
+                            <p class="font-semibold text-lg">R$ ${sale.total_amount.toFixed(2)}</p>
+                        </div>
+                    </div>
+
+                    <h4 class="font-semibold mb-3">Itens da Venda</h4>
+                    <table class="w-full mb-6">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-2">Produto</th>
+                                <th class="text-center py-2">Quantidade</th>
+                                <th class="text-right py-2">Preço Unitário</th>
+                                <th class="text-right py-2">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml || '<tr><td colspan="4" class="py-4 text-center">Nenhum item encontrado</td></tr>'}
+                        </tbody>
+                    </table>
+
+                    ${sale.notes ? `
+                    <div>
+                        <h4 class="font-semibold mb-2">Observações</h4>
+                        <p class="text-gray-700">${sale.notes}</p>
+                    </div>
+                    ` : ''}
+                `;
+
+                // Abre o modal
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('Erro ao carregar detalhes da venda:', error);
+                showError('Erro ao carregar detalhes da venda: ' + error.message);
+            }
+        }
+
+        // Fechar modal de detalhes
+        function closeSaleDetailModal() {
+            const modal = document.getElementById('saleDetailModal');
+            modal.classList.remove('active');
+        }
+
+        // Print receipt
+        async function printReceipt(saleId) {
+            try {
+                const { data: sale, error } = await supabaseClient
+                    .from('sales')
+                    .select(`
+                        *,
+                        clients (*),
+                        sale_items (*, products (*))
+                    `)
+                    .eq('id', saleId)
+                    .single();
+
+                if (error) throw error;
+
+                // Aqui você pode implementar a lógica de impressão
+                // Por enquanto, vamos apenas abrir uma nova janela com o recibo
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Recibo - ${sale.sale_number}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .info { margin-bottom: 15px; }
+                            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            .total { font-weight: bold; font-size: 1.2em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>FinanceControl</h1>
+                            <h2>Recibo de Venda</h2>
+                        </div>
+                        <div class="info">
+                            <p><strong>Número:</strong> ${sale.sale_number}</p>
+                            <p><strong>Data:</strong> ${new Date(sale.created_at).toLocaleString('pt-BR')}</p>
+                            <p><strong>Cliente:</strong> ${sale.clients ? sale.clients.name : 'Não informado'}</p>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Preço Unitário</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${sale.sale_items.map(item => `
+                                    <tr>
+                                        <td>${item.products ? item.products.name : 'N/A'}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>R$ ${item.unit_price.toFixed(2)}</td>
+                                        <td>R$ ${item.total_price.toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="total">
+                            <p>Total: R$ ${sale.total_amount.toFixed(2)}</p>
+                        </div>
+                        <p><strong>Método de Pagamento:</strong> ${sale.payment_method || 'Não informado'}</p>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            } catch (error) {
+                console.error('Erro ao imprimir recibo:', error);
+                showError('Erro ao imprimir recibo: ' + error.message);
+            }
+        }
+
+        // Cancel sale
+        async function cancelSale(saleId) {
+            if (confirm('Deseja realmente cancelar esta venda?')) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('sales')
+                        .update({ status: 'cancelled' })
+                        .eq('id', saleId);
+
+                    if (error) throw error;
+
+                    showSuccess('Venda cancelada com sucesso!');
+                    loadSales(); // Recarrega a lista
+                } catch (error) {
+                    console.error('Erro ao cancelar venda:', error);
+                    showError('Erro ao cancelar venda: ' + error.message);
+                }
+            }
+        }
+
+        // Export sales
+        function exportSales() {
+            // Implementação básica de exportação para CSV
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + "Número Venda,Cliente,Data,Valor Total,Método Pagamento,Status\n"
+                + allSales.map(sale =>
+                    `"${sale.sale_number || ''}","${sale.clients ? sale.clients.name : ''}","${new Date(sale.created_at).toLocaleString('pt-BR')}","${sale.total_amount || 0}","${sale.payment_method || ''}","${sale.status}"`
+                ).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "vendas.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Estado da interface
+        function showLoadingState() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('salesContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showSalesContainer() {
+            document.getElementById('salesContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function showEmptyState() {
+            document.getElementById('salesContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        // Notificações
+        function showSuccess(message) {
+            alert('✅ ' + message);
+        }
+
+        function showError(message) {
+            alert('❌ ' + message);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('saleDetailModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeSaleDetailModal();
+            }
+        });
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        if (mobileMenuBtn && sidebar && mobileOverlay) {
+            mobileMenuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.classList.toggle('hidden');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            mobileOverlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function () {
+                    sidebar.classList.remove('active');
+                    mobileOverlay.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                });
+            });
+        }
+
+        // Mobile sidebar styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                    transition: transform 0.3s ease;
+                }
+                .sidebar.active {
+                    transform: translateX(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>
